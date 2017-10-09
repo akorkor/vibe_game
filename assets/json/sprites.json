@@ -1,0 +1,9 @@
+{
+  "tri_1":[
+    {
+      "density": 2, "friction": 0, "bounce": 0,
+      "filter": {"categoryBits": 1, "maskBits": 65535},
+      "shape": [0, 50, 527, 50, 263.5, 249]
+    }
+  ]
+}

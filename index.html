@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+    <!-- ======= ======= ======= head ======= ======= ======= -->
+	<head>
+	    <meta charset="utf-8">
+	    <title>Game 1</title>
+			<!-- == scripts == -->
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+			<script type="text/javascript" src="scripts/phaser.js"></script>
+
+	</head>
+
+    <!-- ======= ======= ======= body ======= ======= ======= -->
+	<body>
+		<script>
+			var game = new Phaser.Game(800,600,Phaser.CANVAS, '',{preload:preload, create:create, update:update});
+
+			var background, fire1, fire2, level, platform, character, step1,step2, step3, step4, step5,
+                step6, step7, step8, step9, step10, step11, step12, cursors, jumpButton;
+
+            var isNormalPosition = true;
+            var jumpTimer = 0;
+
+
+            function preload() {
+				game.load.image('background', 'assets/background.jpeg');
+                game.load.image('fire1', 'assets/fire1.png');
+                game.load.image('fire2', 'assets/fire2.png');
+                game.load.image('level', 'assets/level1.png');
+                game.load.image('step', 'assets/step.png');
+                game.load.image('platform', 'assets/platform.png');
+                game.load.image('char', 'assets/char.png');
+
+                game.load.physics('physicsData', 'assets/json/sprites.json');
+
+
+            }
+            function create() {
+//			    game.physics.starSystem(Phaser.Physics.ARCADE);
+				game.physics.startSystem(Phaser.Physics.P2JS);
+                game.physics.p2.restitution = 0.5;
+                game.physics.p2.gravity.y = 300;
+
+				game.physics.p2.gravity.y =100;
+                game.physics.p2.restitution =0.3;
+                game.physics.p2.setImpactEvents(true);
+                cursors = game.input.keyboard.createCursorKeys();
+                jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+
+                background = game.add.tileSprite(0,0,800,600, 'background');
+
+				fire1 = game.add.sprite(203,575, 'fire1');
+				game.physics.p2.enable(fire1);
+				fire1.body.static = true;
+
+                fire2 = game.add.sprite(645,575, 'fire2');
+                game.physics.p2.enable(fire2);
+                fire2.body.static = true;
+
+
+                level = game.add.sprite(400.50,342.50, 'level');
+                game.physics.p2.enable(level, false);
+                level.body.static = true;
+                level.body.clearShapes();
+                level.body.loadPolygon('physicsData', 'tri_1');
+
+
+                platform = game.add.sprite(444,594, 'platform');
+                game.physics.p2.enable(platform);
+                platform.body.static = true;
+
+
+				character = game.add.sprite(444,594, 'char');
+                game.physics.p2.enable(character, false);
+                character.body.fixedRotation = true;
+
+
+
+
+
+//                step1 = game.add.sprite(410,130, 'step');
+//				game.physics.p2.enable(step1);
+//				step1.body.static = true;
+//
+//                step2 = game.add.sprite(270,210, 'step');
+//				game.physics.p2.enable(step2);
+//				step2.body.static = true;
+
+				step3 = game.add.sprite(500,210, 'step');
+				game.physics.p2.enable(step3);
+				step3.body.static = true;
+
+				step4 = game.add.sprite(630,140, 'step');
+				game.physics.p2.enable(step4);
+				step4.body.static = true;
+
+				step5 = game.add.sprite(720,70, 'step');
+				game.physics.p2.enable(step5);
+				step5.body.static = true;
+
+				step6 = game.add.sprite(700,500, 'step');
+				game.physics.p2.enable(step6);
+				step6.body.static = true;
+
+				step7 = game.add.sprite(380,530, 'step');
+				game.physics.p2.enable(step7);
+				step7.body.static = true;
+
+				step8 = game.add.sprite(280,470, 'step');
+				game.physics.p2.enable(step8);
+				step8.body.static = true;
+
+				step9 = game.add.sprite(195,500, 'step');
+				game.physics.p2.enable(step9);
+				step9.body.static = true;
+
+				step10 = game.add.sprite(100,460, 'step');
+				game.physics.p2.enable(step10);
+				step10.body.static = true;
+
+				step11 = game.add.sprite(50,390, 'step');
+				game.physics.p2.enable(step11);
+				step11.body.static = true;
+
+				step12 = game.add.sprite(-10,340, 'step');
+				game.physics.p2.enable(step12);
+				step12.body.static = true;
+
+
+
+
+
+            }
+            function update() {
+//			    game.physics.arcade.collide(platform, character, handleBounceCollision);
+
+                character.body.velocity.x = 0;
+
+//                if(cursors.up.isDown) {
+//                    character.body.moveUp(120);
+//                }
+
+                if(cursors.left.isDown) {
+                    character.body.moveLeft(120);
+                }
+
+                else if(cursors.right.isDown) {
+                    character.body.moveRight(120);
+                }
+                if (jumpButton.isDown && game.time.now > jumpTimer && checkIfCanJump())
+                {
+                    character.body.moveUp(120);
+                    jumpTimer = game.time.now + 750;
+                }
+
+
+                character.body.createBodyCallback(fire1, function (char) {
+					char.sprite.destroy();
+                })
+                character.body.createBodyCallback(fire2, function (char) {
+                    char.sprite.destroy();
+                })
+
+
+            }
+            function checkIfCanJump() {
+
+                var yAxis = p2.vec2.fromValues(0, 1);
+                var result = false;
+
+                for (var i = 0; i < game.physics.p2.world.narrowphase.contactEquations.length; i++) {
+                    var c = game.physics.p2.world.narrowphase.contactEquations[i];
+
+                    if (c.bodyA === character.body.data || c.bodyB === character.body.data) {
+                        var d = p2.vec2.dot(c.normalA, yAxis); // Normal dot Y-axis
+                        if (c.bodyA === character.body.data) d *= -1;
+                        if (d > 0.5) result = true;
+                    }
+                }
+                return result;
+            }
+
+
+                function render() {
+
+                }
+
+
+            //            function handleBounceCollision() {
+//			    isNormalPosition = true;
+//                character.body.gravity.set(0, 0);
+//
+//
+//           }
+		</script>
+
+	</body>
+</html>
